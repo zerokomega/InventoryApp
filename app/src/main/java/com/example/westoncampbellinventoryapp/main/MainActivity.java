@@ -1,4 +1,4 @@
-package com.example.westoncampbellinventoryapp;
+package com.example.westoncampbellinventoryapp.main;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+
+import com.example.westoncampbellinventoryapp.R;
 
 public class MainActivity extends AppCompatActivity {
 
