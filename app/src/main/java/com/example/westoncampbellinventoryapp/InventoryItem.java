@@ -5,6 +5,8 @@ public class InventoryItem {
     private String itemName;
     private String itemDescription;
 
+    private int itemCount;
+
     public InventoryItem() {}
 
     public InventoryItem(long id, String name, String description) {
@@ -35,5 +37,13 @@ public class InventoryItem {
 
     public void setDescription(String description) {
         this.itemDescription = description;
+    }
+
+    public int getCount() {
+        return itemCount;
+    }
+
+    public void setCount(int itemCount) {
+        this.itemCount = itemCount;
     }
 }

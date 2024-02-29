@@ -10,6 +10,8 @@
     <string name="title_edit">Edit</string>
     <string name="title_settings">Settings</string>
     <string name="alert">Out Of Stock Alerts</string>
+    <string name="hat_name">Hard Hats</string>
+    <string name="hat_desc">Standard Issue Hard Hats</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

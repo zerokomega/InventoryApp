@@ -52,12 +52,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 InventoryTable.COL_NAME + ", " +
                 InventoryTable.COL_DESCRIPTION + ")");
 
-        String paraString = ")";
         db.execSQL("create table " + UserTable.TABLE + "( " +
                 UserTable.COL_ID + " integer primary key autoincrement, " +
                 UserTable.COL_USERNAME + " text, " +
                 UserTable.COL_PASSWORD + " text, " +
-                "constraint username_unique unique (" + UserTable.COL_USERNAME + paraString);
+                "constraint username_unique unique (" + UserTable.COL_USERNAME + "))");
     }
 
     @Override
@@ -67,8 +66,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public List<InventoryItem> getItems() {
-        List<InventoryItem> items = new ArrayList<>();
+    public ArrayList<InventoryItem> getItems() {
+        ArrayList<InventoryItem> items = new ArrayList<>();
 
         SQLiteDatabase db = getReadableDatabase();
 
