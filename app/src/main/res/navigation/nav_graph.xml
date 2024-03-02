@@ -7,21 +7,35 @@
 
     <fragment
         android:id="@+id/navigation_inventory"
-        android:name="com.example.westoncampbellinventoryapp.InventoryFragment"
+        android:name="com.example.westoncampbellinventoryapp.inventory.InventoryFragment"
         android:label="@string/title_inventory"
         tools:layout="@layout/fragment_inventory" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.example.westoncampbellinventoryapp.SettingsFragment"
+        android:name="com.example.westoncampbellinventoryapp.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/navigation_edit"
-        android:name="com.example.westoncampbellinventoryapp.EditFragment"
+        android:name="com.example.westoncampbellinventoryapp.edit.EditFragment"
         android:label="@string/title_edit"
-        tools:layout="@layout/fragment_edit" />
+        tools:layout="@layout/fragment_edit" >
+        <action
+            android:id="@+id/action_navigation_edit_to_navigation_editForm"
+            app:destination="@id/navigation_editForm" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_editForm"
+        android:name="com.example.westoncampbellinventoryapp.edit.EditForm"
+        android:label="@string/title_edit_form"
+        tools:layout="@layout/form_edit" >
+        <action
+            android:id="@+id/action_navigation_editForm_to_navigation_edit"
+            app:destination="@id/navigation_edit" />
+    </fragment>
 
 
 </navigation>

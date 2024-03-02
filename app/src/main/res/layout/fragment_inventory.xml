@@ -5,13 +5,13 @@
     android:id="@+id/item_list_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".InventoryFragment">
+    tools:context=".inventory.InventoryFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/inventoryRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="60dp"/>
+        android:padding="12dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
 </FrameLayout>

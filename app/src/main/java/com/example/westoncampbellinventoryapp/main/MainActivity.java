@@ -1,87 +1,157 @@
 package com.example.westoncampbellinventoryapp.main;
 
 
+import static com.example.westoncampbellinventoryapp.R.layout.*;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
+import com.example.westoncampbellinventoryapp.InventoryItem;
 import com.example.westoncampbellinventoryapp.R;
+import com.example.westoncampbellinventoryapp.data.DatabaseManager;
+import com.example.westoncampbellinventoryapp.edit.EditForm;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
 
-//    ActivityMainBinding binding;
-//    ArrayList<InventoryItem> itemList = new ArrayList<>();
+    Button noticeButton, alertButton;
+    TextView alertText;
+    String alertUpdate;
+    NavHostFragment navHostFragment;
+    NavController navController;
+
+
+    ArrayList<InventoryItem> itemList = new ArrayList<>();
+    ArrayList<InventoryItem> alertList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(activity_main);
 
 
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         assert navHostFragment != null;
-        NavController navController = navHostFragment.getNavController();
+        navController = navHostFragment.getNavController();
         BottomNavigationView bottomNav = findViewById(R.id.navView);
         NavigationUI.setupWithNavController(bottomNav, navController);
 
+        noticeButton = findViewById(R.id.noticeButton);
+        noticeButton.setOnClickListener(this::onNoticeButtonClick);
+
+        alertButton = findViewById(R.id.alertButton);
+        alertButton.setOnClickListener(this::onNoticeButtonClick);
+
+        updateLists();
+    }
 
 
 
-//        binding = ActivityMainBinding.inflate(getLayoutInflater());
-//        setContentView(binding.getRoot());
-/*
-        binding.navView.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.navigation_inventory:
-                    replaceFragment(new InventoryFragment());
-                    break;
-                case R.id.navigation_edit:
-                    replaceFragment(new EditFragment());
-                    break;
-                case R.id.navigation_settings:
-                    replaceFragment(new SettingsFragment());
-                    break;
+    public void updateLists() {
+        itemList = DatabaseManager.getInstance(this).getItems();
+        alertList.clear();
+        for (int i = 0; i < itemList.size(); ++i) {
+            if (itemList.get(i).getCount() < 1) {
+                alertList.add(itemList.get(i));
             }
-
-
-            return true;
-        });
-
-
-        if (DatabaseManager.getInstance(this).getItems().isEmpty()) {
-            InventoryItem defaultItem = new InventoryItem(0, getString(R.string.hat_name), getString(R.string.hat_desc));
-            DatabaseManager.getInstance(this).addItem(defaultItem);
         }
 
-        RecyclerView recyclerView = findViewById(R.id.inventory_list);
+        if (alertList.isEmpty()) {
+            alertButton.setVisibility(View.INVISIBLE);
+            alertUpdate = getString(R.string.no_out_of_stock);
 
-        setUpItemModels();
-
-        InvRecyclerViewAdapter adapter = new InvRecyclerViewAdapter(this, itemList);
-
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-*/
-
+        }
+        else {
+            alertButton.setVisibility(View.VISIBLE);
+            StringBuilder updateString = new StringBuilder("The following items are out-of-stock:\n");
+            for (int i = 0; i < alertList.size(); ++i) {
+                updateString.append("\n").append(alertList.get(i).getName());
+            }
+            alertUpdate = updateString.toString();
+        }
 
     }
-/*
-    private void replaceFragment(Fragment fragment) {
+
+    public void onNoticeButtonClick(View view) {
+
+        alertButton.setVisibility(View.INVISIBLE);
+
+        // inflate the layout of the popup window
+        LayoutInflater inflater = (LayoutInflater)
+                getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(low_stock, null);
+
+        // create the popup window
+        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        boolean focusable = true; // lets taps outside the popup also dismiss it
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+        // show the popup window
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+        alertText = popupView.findViewById(R.id.alertText);
+        alertText.setText(alertUpdate);
+
+        // dismiss the popup window when touched
+        popupView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                popupWindow.dismiss();
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK && data != null) {
+            Uri selectedImage = data.getData();
+            ImageView imageView = findViewById(R.id.formImageView);
+            imageView.setImageURI(selectedImage);
+        }
+    }
+    
+    public ArrayList <InventoryItem> getItemList() {
+        return itemList;
+    }
+
+    public void startEditForm(int position) {
+        EditForm editForm = new EditForm();
+
+        Bundle args = new Bundle();
+        args.putInt("pos", position);
+        editForm.setArguments(args);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.mainFrameLayout, fragment);
-        fragmentTransaction.commit();
+        fragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.nav_host_fragment, editForm)
+                .commit();
     }
 
-    private void setUpItemModels() {
-        itemList = DatabaseManager.getInstance(this).getItems();
-
+    public void returnFromEditForm() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
- */
 }

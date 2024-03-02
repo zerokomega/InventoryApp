@@ -1,4 +1,4 @@
-package com.example.westoncampbellinventoryapp;
+package com.example.westoncampbellinventoryapp.settings;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.Manifest;
 import android.widget.Toast;
+
+import com.example.westoncampbellinventoryapp.R;
 
 
 public class SettingsFragment extends Fragment {

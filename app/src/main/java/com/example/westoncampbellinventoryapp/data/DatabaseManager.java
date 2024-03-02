@@ -5,15 +5,17 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.example.westoncampbellinventoryapp.InventoryItem;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseManager extends SQLiteOpenHelper {
 
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
     private static final String DATABASE_NAME = "data.db";
 
     private static DatabaseManager instance;
@@ -35,6 +37,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         private static final String COL_ID = "_invid";
         private static final String COL_NAME = "name";
         private static final String COL_DESCRIPTION = "description";
+        private static final String COL_COUNT = "count";
+        private static final String COL_IMAGE = "image";
     }
 
     private static final class UserTable {
@@ -49,8 +53,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + InventoryTable.TABLE + "( " +
                 InventoryTable.COL_ID + " integer primary key autoincrement, " +
-                InventoryTable.COL_NAME + ", " +
-                InventoryTable.COL_DESCRIPTION + ")");
+                InventoryTable.COL_NAME + " text, " +
+                InventoryTable.COL_DESCRIPTION + " text, " +
+                InventoryTable.COL_COUNT + " integer, " +
+                InventoryTable.COL_IMAGE + " blob)");
 
         db.execSQL("create table " + UserTable.TABLE + "( " +
                 UserTable.COL_ID + " integer primary key autoincrement, " +
@@ -80,7 +86,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 long id = cursor.getInt(0);
                 String name = cursor.getString(1);
                 String description = cursor.getString(2);
-                InventoryItem item = new InventoryItem(id, name, description);
+                int count = Integer.parseInt(cursor.getString(3));
+                Bitmap image = getImage(cursor.getBlob(4));
+                InventoryItem item = new InventoryItem(id, name, description, count, image);
                 items.add(item);
             } while (cursor.moveToNext());
         }
@@ -100,7 +108,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             String name = cursor.getString(1);
             String description = cursor.getString(2);
-            item = new InventoryItem(itemId, name, description);
+            int count = Integer.parseInt(cursor.getString(3));
+            Bitmap image = getImage(cursor.getBlob(4));
+
+            item = new InventoryItem(itemId, name, description, count, image);
         }
 
         cursor.close();
@@ -114,6 +125,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(InventoryTable.COL_NAME, item.getName());
         values.put(InventoryTable.COL_DESCRIPTION, item.getDescription());
+        values.put(InventoryTable.COL_COUNT, item.getCount());
+        values.put(InventoryTable.COL_IMAGE, getImageBytes(item.getImage()));
         newId = db.insert(InventoryTable.TABLE, null, values);
 
         return newId;
@@ -126,6 +139,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(InventoryTable.COL_ID, id);
         values.put(InventoryTable.COL_NAME, item.getName());
         values.put(InventoryTable.COL_DESCRIPTION, item.getDescription());
+        values.put(InventoryTable.COL_COUNT, item.getCount());
+        values.put(InventoryTable.COL_IMAGE, getImageBytes(item.getImage()));
 
         int result = db.update(InventoryTable.TABLE, values, InventoryTable.COL_ID + " = " + id, null);
 
@@ -168,5 +183,17 @@ public class DatabaseManager extends SQLiteOpenHelper {
         newId = db.insert(UserTable.TABLE, null, values);
 
         return newId;
+    }
+
+    // Convert image from bitmap to byte array
+    public static byte[] getImageBytes(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+        return stream.toByteArray();
+    }
+
+    // Convert from byte array to bitmap
+    public static Bitmap getImage(byte[] image) {
+        return BitmapFactory.decodeByteArray(image, 0, image.length);
     }
 }
